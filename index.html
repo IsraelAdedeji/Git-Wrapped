@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitWrapped - Your Coding Story</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- INPUT SCREEN -->
+    <section id="screen-input" class="screen active">
+        <div class="input-card">
+            <h1 class="logo">Git<span>Wrapped</span></h1>
+            <p class="tagline">Your coding history, told as a story.</p>
+            <div class="input-row">
+                <input type="text" id="username-input" placeholder="Enter a GitHub username..." autocomplete="off" />
+                <button id="generate-btn">Generate</button>
+            </div>
+            <p class="hint">Try: torvalds, gaearon, sindresorhus</p>
+            <p id="error-msg" class="error"></p>
+        </div>
+    </section>
+
+    <!-- LOADING SCREEN -->
+    <section id="screen-loading" class="screen">
+        <div class="loader">
+            <div class="spinner"></div>
+            <p>Fetching your story...</p>
+        </div>
+    </section>
+
+    <!-- STORY SCREEN -->
+    <section id="screen-story" class="screen">
+        <div class="slide-container" id="slide-container">
+            <!-- Slides injected by JS -->
+        </div>
+        <div class="controls">
+            <button id="prev-btn" class="nav-btn">←</button>
+            <div class="progress-dots" id="progress-dots"></div>
+            <button id="next-btn" class="nav-btn">→</button>
+        </div>
+        <button id="restart-btn" class="restart">Start Over</button>
+    </section>
+    <script src="script.js"></script>
+</body>
+
+</html>
