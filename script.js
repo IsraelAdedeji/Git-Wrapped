@@ -61,11 +61,14 @@ async function fetchUserData(username, signal) {
     const joinYear = new Date(user.created_at).getFullYear();
     const yearsOnGitHub = new Date().getFullYear() - joinYear;
 
+    // 3. Fetch recent events for heatmap
+    const events = await ghFetch(`/users/${username}/events?per_page=100`, signal);
+
     return {
         username: user.login, name: user.name || user.login, avatar: user.avatar_url,
         bio: user.bio, followers: user.followers, publicRepos: user.public_repos,
         joinYear, yearsOnGitHub, totalStars, totalForks, topRepo, topLanguages,
-        repoCount: repos.length,
+        repoCount: repos.length, events: events,
     };
 }
 
@@ -107,6 +110,41 @@ function buildSlides(d) {
         slides.push({
             label: 'Your most-loved project',
             html: `<div class="big gradient-text">${d.topRepo.name}</div><div class="sub">⭐ ${d.topRepo.stargazers_count.toLocaleString()} stars · 🍴 ${d.topRepo.forks_count.toLocaleString()} forks</div>`,
+        });
+    }
+
+    // Slide 7: Heatmap (The 90-Day Time Machine)
+    if (d.events && d.events.length > 0) {
+        // Aggregate events by day for the last 90 days
+        const today = new Date();
+        const days = [];
+        for (let i = 89; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            const count = d.events.filter(e => e.created_at.startsWith(dateStr)).length;
+            days.push({ date: dateStr, count: count });
+        }
+
+        const maxCount = Math.max(...days.map(d => d.count), 1);
+
+        // Build the grid (13 weeks x 7 days = 91 days)
+        const heatmapHtml = days.map(day => {
+            const intensity = day.count === 0 ? 0 : Math.ceil((day.count / maxCount) * 4);
+            const colors = ['#1f1f2e', '#3b0764', '#7c3aed', '#a855f7', '#06b6d4'];
+            const color = colors[intensity];
+            return `<div style="width: 12px; height: 12px; background: ${color}; border-radius: 2px; margin: 1px;" title="${day.date}: ${day.count} events"></div>`;
+        }).join('');
+
+        slides.push({
+            label: 'Your last 90 days',
+            html: `
+        <div class="big gradient-text">The Time Machine</div>
+        <div style="display: flex; flex-wrap: wrap; width: 196px; margin: 1.5rem auto; justify-content: center;">
+            ${heatmapHtml}
+        </div>
+        <div class="sub">Every square is a day. Every color is your effort.</div>
+        `,
         });
     }
 
